@@ -1,7 +1,8 @@
 FROM php:5.4-apache
 MAINTAINER info@subak.jp
 
-RUN a2enmod rewrite
+RUN a2enmod rewrite && \
+    a2enmod mime
 
 RUN echo 'date.timezone = "Asia/Tokyo"' > /usr/local/etc/php/conf.d/date.ini
 
@@ -29,6 +30,12 @@ RUN tar zxfv ablogcms.tgz --wildcards -C . --strip=2 '*/ablogcms/*' && \
     rm ablogcms.tgz && \
     mv htaccess.txt .htaccess &&\
     chmod -R 777 config.server.php archives archives_rev media setup themes
+
+RUN mv archives/htaccess.txt archives/.htaccess && \
+    mv archives_rev/htaccess.txt archives_rev/.htaccess && \
+    mv media/htaccess.txt media/.htaccess && \
+    mv private/htaccess.txt private/.htaccess && \
+    mv themes/htaccess.txt themes/.htaccess
 
 COPY db_default.php /var/www/html/setup/lib/db_default.php
 
