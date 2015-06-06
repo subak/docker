@@ -1,4 +1,4 @@
-FROM subak/ablogcms:php54x-ver2500
+FROM subak/ablogcms-docker:php54x-ver2500
 MAINTAINER info@subak.jp
 
 RUN pecl install xdebug && \
