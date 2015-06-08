@@ -15,6 +15,9 @@ RUN docker-php-ext-configure mbstring --enable-mbstring && \
 RUN docker-php-ext-configure mysql --with-mysql && \
     docker-php-ext-install mysql
 
+RUN apt-get update && apt-get install -y ssmtp && rm -rf /var/lib/apt/lists/* && \
+    echo 'sendmail_path = /usr/sbin/ssmtp -t' > /usr/local/etc/php/conf.d/ssmtp.ini
+
 RUN curl -L -o seezoo.tgz https://bitbucket.org/seezoo/seezoo/get/default.tar.gz && \
     tar zxfv seezoo.tgz --wildcards -C . --strip=2 '*/src/*' && \
     rm seezoo.tgz
@@ -35,3 +38,4 @@ RUN mkdir conf && \
     mv system/application/config/database.php conf/database.php && \
     ln -s /var/www/html/conf/config.php /var/www/html/system/application/config/config.php && \
     ln -s /var/www/html/conf/database.php /var/www/html/system/application/config/database.php
+
