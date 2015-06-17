@@ -19,7 +19,8 @@ sync {
   rsync = {
     compress = true,
     perms = true,
-    protect_args = false
+    protect_args = false,
+    verbose = true
   }
 }
 EOF

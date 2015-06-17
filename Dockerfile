@@ -7,3 +7,5 @@ RUN rm -rf /var/lib/apt/lists/*
 COPY rsync.sh /
 
 RUN chmod +x /rsync.sh
+
+CMD ["/rsync.sh"]
