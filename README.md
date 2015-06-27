@@ -13,3 +13,9 @@ $ cat storage.tar | docker import - storage_image
 $ docker run --rm --volumes-from some_volume_container storage_image restore /var/www/html /var/lib/mysql
 $ docker rmi storage_image
 ```
+
+## with docker compose
+```
+# before restore you have to up volume container
+$ docker-compose up -d storage
+```
