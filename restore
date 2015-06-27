@@ -1,0 +1,5 @@
+#!/bin/sh
+for path in $@
+do
+  gzip -d -c /var/`echo ${path} | tr '/' '_'`.tgz | tar xpvf -
+done
