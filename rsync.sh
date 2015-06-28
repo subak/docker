@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#cat /rsyncd.tpl.conf | envsubst >> /etc/rsyncd.conf
-
 cat <<EOF > /etc/rsyncd.conf
 log file = /dev/stdout
 
