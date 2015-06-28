@@ -1,4 +1,4 @@
-FROM subak/php:5.4-base
+FROM subak/php:5.4-xdebug
 
 RUN curl -o /usr/local/lib/php/extensions/no-debug-non-zts-20100525/ioncube.tgz http://downloads3.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz
 RUN tar zxfv /usr/local/lib/php/extensions/no-debug-non-zts-20100525/ioncube.tgz -C /usr/local/lib/php/extensions/no-debug-non-zts-20100525/ && \
