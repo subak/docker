@@ -1,0 +1,17 @@
+#!/bin/bash
+
+function abort
+{
+   echo "$@" 1>&2
+   exit 1
+}
+
+REPO=${REPO:-localhost:5000}
+[ $TAG ] || abort "TAG env is missing."
+[ $STORAGE ] || abort "STORAGE env is missiong."
+
+docker run --name storage_$TAG --volumes-from $STORAGE subak/storage backup $@
+docker commit storage_$TAG $REPO/storage:$TAG
+docker push $REPO/storage:$TAG
+docker rm storage_$TAG
+docker rmi $REPO/storage:$TAG

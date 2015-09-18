@@ -1,0 +1,7 @@
+#!/bin/bash
+
+touch /var/spool/cron/crontabs/root
+cp /var/spool/cron/crontabs/root /tmp/root.txt
+printenv | cat - /tmp/root.txt | tee /var/spool/cron/crontabs/root
+chmod 600 /var/spool/cron/crontabs/root
+cron -f
