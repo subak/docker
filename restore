@@ -10,8 +10,6 @@ REPO=${REPO:-localhost:5000}
 NAME=${NAME:-storage}
 [ $TAG ] || abort "TAG env is missing."
 
-docker run --name storage_$TAG --volumes-from $HOSTNAME subak/storage backup $@
-docker commit storage_$TAG $REPO/$NAME:$TAG
-docker push $REPO/$NAME:$TAG
-docker rm storage_$TAG
+docker pull $REPO/$NAME:$TAG
+docker run --rm --volumes-from $HOSTNAME $REPO/$NAME:$TAG restore $@
 docker rmi $REPO/$NAME:$TAG
