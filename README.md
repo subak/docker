@@ -9,8 +9,8 @@ $ docker export storage_container > storage.tar
 $ docker rm storage_container
 
 # restore
-$ cat storage.tar | docker import - storage_image
-$ docker run --rm --volumes-from some_volume_container storage_image restore /var/www/html /var/lib/mysql
+$ cat storage.tar | docker import - storage:some-project
+$ docker run --rm --volumes-from some_volume_container storage:some-project restore /var/www/html /var/lib/mysql
 $ docker rmi storage_image
 ```
 

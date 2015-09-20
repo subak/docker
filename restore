@@ -1,5 +1,8 @@
 #!/bin/sh
 for path in $@
 do
-  gzip -d -c /var/`echo ${path} | tr '/' '_'`.tgz | tar xpvf -
+  if [ -e $path ]; then
+    rm -rf $path/* $path/.[^.] $path/.??*
+    gzip -d -c /var/`echo ${path} | tr '/' '_'`.tgz | tar xpvf -
+  fi
 done
