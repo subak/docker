@@ -6,6 +6,7 @@ function abort
    exit 1
 }
 
+# REPO=${REGISTRY_PORT/tcp:\/\//}
 REPO=${REPO:-localhost:5000}
 NAME=${NAME:-storage}
 [ $TAG ] || abort "TAG env is missing."
