@@ -9,7 +9,7 @@ function abort
 # REPO=${REGISTRY_PORT/tcp:\/\//}
 REPO=${REPO:-localhost:5000}
 NAME=${NAME:-storage}
-[ $TAG ] || abort "TAG env is missing."
+[ "$TAG" ] || abort "TAG env is missing."
 
 docker run --name storage_$TAG --volumes-from $HOSTNAME subak/storage backup $@
 docker commit storage_$TAG $REPO/$NAME:$TAG
