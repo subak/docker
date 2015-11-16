@@ -15,3 +15,5 @@ RUN docker-php-ext-configure mysql --with-mysql && \
 
 RUN apt-get update && apt-get install -y ssmtp && rm -rf /var/lib/apt/lists/* && \
     echo 'sendmail_path = /usr/sbin/ssmtp -t' > /usr/local/etc/php/conf.d/ssmtp.ini
+
+RUN echo 'upload_max_filesize = 8M' > /usr/local/etc/php/conf.d/php.ini
