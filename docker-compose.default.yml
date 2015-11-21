@@ -1,0 +1,11 @@
+cron:
+  image: subak/cron
+  environment:
+    TAG: default
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+  volumes_from:
+    - storage
+  command:
+    - /cron
+    - '00 05 * * * TAG=$TAG-$(date +"\%u") /backup /path/to/target'
