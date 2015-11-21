@@ -1,6 +1,6 @@
-FROM ubuntu:trusty
+FROM docker:1.8.3
 
-RUN apt-get update && apt-get install -y docker.io && rm -rf /var/lib/apt/lists/*
+RUN apk --update add bash apk-cron
 
 COPY cron /
 COPY backup /
