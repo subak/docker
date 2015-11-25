@@ -1,0 +1,6 @@
+{
+  "start": "node server.js",
+  "dependencies" : {
+    "ws": "0.8.0"
+  }
+}
