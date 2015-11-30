@@ -9,4 +9,5 @@ RUN apk add --update openssh && \
 
 RUN echo 'root:sshd' | chpasswd
 
+EXPOSE 22
 CMD ["/usr/sbin/sshd", "-D"]
