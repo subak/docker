@@ -1,18 +1,23 @@
 #!/bin/bash
 
+if [ -n "$AUTH_DATA" ]; then
+  echo $AUTH_DATA > /root/.docker/config.json
+fi
+
 function abort
 {
    echo "$@" 1>&2
    exit 1
 }
 
-# REPO=${REGISTRY_PORT/tcp:\/\//}
-REPO=${REPO:-localhost:5000}
-NAME=${NAME:-storage}
+REGI=${REGI:-docker.io}
+[ "$REPO" ] || abort "REPO env is missing."
 [ "$TAG" ] || abort "TAG env is missing."
+NAME=$(mkpasswd -m md5 '' | base64 | sed 's/[=+\/]//g')
 
-docker run --name storage_$TAG --volumes-from $HOSTNAME subak/storage backup $@
-docker commit storage_$TAG $REPO/$NAME:$TAG
-docker push $REPO/$NAME:$TAG
-docker rm storage_$TAG
-docker rmi $REPO/$NAME:$TAG
+docker run --name $NAME --volumes-from $HOSTNAME subak/storage backup $@
+docker commit $NAME $REGI/$REPO:$TAG
+# TODO: handle unauthorized error
+docker push $REGI/$REPO:$TAG
+docker rm $NAME
+docker rmi $REGI/$REPO:$TAG

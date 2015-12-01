@@ -1,16 +1,19 @@
 #!/bin/bash
 
+if [ -n "$AUTH_DATA" ]; then
+  echo $AUTH_DATA > /root/.docker/config.json
+fi
+
 function abort
 {
    echo "$@" 1>&2
    exit 1
 }
 
-# REPO=${REGISTRY_PORT/tcp:\/\//}
-REPO=${REPO:-localhost:5000}
-NAME=${NAME:-storage}
-[ $TAG ] || abort "TAG env is missing."
+REGI=${REGI:-docker.io}
+[ "$REPO" ] || abort "REPO env is missing."
+[ "$TAG" ] || abort "TAG env is missing."
 
-docker pull $REPO/$NAME:$TAG
-docker run --rm --volumes-from $HOSTNAME $REPO/$NAME:$TAG restore $@
-docker rmi $REPO/$NAME:$TAG
+docker pull $REGI/$REPO:$TAG
+docker run --rm --volumes-from $HOSTNAME $REGI/$REPO:$TAG restore $@
+docker rmi $REGI/$REPO:$TAG
