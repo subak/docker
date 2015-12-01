@@ -1,4 +1,4 @@
-FROM docker:1.8.3
+FROM docker:latest
 
 RUN apk --update add bash apk-cron
 
