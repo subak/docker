@@ -1,11 +1,30 @@
 cron:
-  image: subak/cron
+  image: subak/cron:latest
   environment:
+    TZ: Asia/Tokyo
+    REGI: localhost:5000
+    AUTH_DATA: '{"auths":{}}'
+    REPO: my/storage
     TAG: default
   volumes:
     - /var/run/docker.sock:/var/run/docker.sock
   volumes_from:
     - storage
   command:
-    - /cron
-    - '00 05 * * * TAG=$TAG-$(date +"\%u") /backup /path/to/target'
+    - 00 05 * * * TAG=$TAG-$(date +%u) /backup /path/to/target
+
+backup:
+  image: subak/cron:latest
+  environment:
+    TZ: Asia/Tokyo
+    REGI: localhost:5000
+    AUTH_DATA: '{"auths":{}}'
+    REPO: my/storage
+    TAG: default
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+  volumes_from:
+    - storage
+  entrypoint: /backup
+  command:
+    - /path/to/target
