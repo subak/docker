@@ -1,7 +1,6 @@
 cron:
   image: subak/cron:latest
   environment:
-    TZ: Asia/Tokyo
     REGI: localhost:5000
     AUTH_DATA: '{"auths":{}}'
     REPO: my/storage
@@ -16,7 +15,6 @@ cron:
 backup:
   image: subak/cron:latest
   environment:
-    TZ: Asia/Tokyo
     REGI: localhost:5000
     AUTH_DATA: '{"auths":{}}'
     REPO: my/storage
