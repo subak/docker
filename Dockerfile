@@ -6,9 +6,8 @@ RUN apk --update add bash tzdata apk-cron && \
 
 COPY .docker /root/.docker/
 
-COPY cron /
-COPY backup /
-COPY restore /
-RUN chmod +x /cron /backup /restore
+COPY cron-entrypoint.sh /usr/local/bin
+COPY backup /usr/local/bin
+COPY restore /usr/local/bin
 
-ENTRYPOINT ["/cron"]
+ENTRYPOINT ["cron-entrypoint.sh"]
