@@ -1,6 +1,6 @@
 var net = require('net'),
   ws = require('ws'),
-  sender = new ws.Server({ port: 6001 });
+  sender = new ws.Server({ port: 5000 });
 
 sender.on('connection', function (ws) {
   // 日付、どのclientからコネクションがあったかを出力
@@ -13,12 +13,15 @@ var receiver = new net.createServer(function (c) {
     // echo
     c.write(data);
 
+    // docker log
+    console.log(data.toString('utf8'));
+
     sender.clients.forEach(function (ws) {
       ws.send(data);
     });
   });
 });
 
-receiver.listen(6000, function() {
-  console.log('bounded');
+receiver.listen(1337, function() {
+  //console.log('listen');
 });

@@ -1,3 +1,3 @@
 ```
-$ docker run -ti --rm -p 6000:6000 -p 6001:6001 subak/ws
+$ docker run -d --name screen_exchange_remote -p 49152:1337 -p 49153:5000 subak/screen_exchange_remote
 ```

@@ -1,5 +1,5 @@
 var WebSocket = require('ws'),
-  ws = new WebSocket('ws://15.core:6001'),
+  ws = new WebSocket('ws://localhost:49153'),
   spawn = require('child_process').spawn;
 
 ws.on('open', function (m) {
