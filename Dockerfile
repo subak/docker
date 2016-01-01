@@ -9,7 +9,7 @@ ONBUILD COPY server.crt /etc/stunnel/
 ONBUILD COPY server.key /etc/stunnel/
 ONBUILD COPY ca.crt /etc/stunnel/
 
-COPY stunnel-entrypoint.sh /usr/local/bin
+COPY stunnel-entrypoint.sh /usr/local/bin/
 
 ENTRYPOINT ["stunnel-entrypoint.sh"]
 CMD ["-fd","0"]
