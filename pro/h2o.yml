@@ -8,3 +8,4 @@ hosts:
 
 access-log: /dev/stdout
 error-log: /dev/stderr
+user: root
