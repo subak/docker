@@ -16,7 +16,7 @@ if [ -e cms ]; then
   git reset --hard origin/master
   cd ../
 else
-  git clone --depth 1 ${CONTENT_REPO} cms
+  git clone ${CONTENT_REPO} cms
   cd cms
   if [ ! -e ${APP} ]; then
     git clone --depth 1 ${ENGINE_REPO} ${APP}
