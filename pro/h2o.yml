@@ -1,0 +1,10 @@
+listen: 80
+hosts:
+  default:
+    paths:
+      /:
+        file.dir: public
+        file.index: ['index.html']
+
+access-log: /dev/stdout
+error-log: /dev/stderr
