@@ -1,0 +1,20 @@
+#!/bin/bash
+
+set -ue
+
+if [ -n "$AUTH_DATA" ]; then
+  echo $AUTH_DATA > /root/.docker/config.json
+fi
+
+function abort
+{
+   echo "$@" 1>&2
+   exit 1
+}
+
+REGI=${REGI:-docker.io}
+TAG_SUFFIX=${TAG_SUFFIX:-''}
+
+docker pull $REGI/$REPO:$TAG$TAG_SUFFIX
+docker run --rm --volumes-from $HOSTNAME $REGI/$REPO:$TAG$TAG_SUFFIX restore $@
+docker rmi $REGI/$REPO:$TAG$TAG_SUFFIX
