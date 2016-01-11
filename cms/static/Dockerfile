@@ -1,4 +1,4 @@
-FROM subak/cms:latest
+FROM subak/cms:base
 MAINTAINER Subak Systems <info@subak.jp>
 
 RUN mkdir -m 700 -p .ssh \
