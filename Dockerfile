@@ -81,5 +81,21 @@ RUN apt-get install -y jq
 # yaml2json
 RUN npm install -g yaml2json
 
+# ruby-jq
+RUN cd /usr/src \
+ && git clone https://github.com/stedolan/jq.git \
+ && cd jq \
+ && autoreconf -i \
+ && ./configure --enable-shared \
+ && make \
+ && make install \
+ && ldconfig \
+ && gem install ruby-jq
+
+# asciidoctor
+RUN apt-get update && apt-get install -y default-jre graphviz fonts-vlgothic
+RUN gem install asciidoctor \
+ && gem install asciidoctor-diagram --pre
+
 EXPOSE 80
 
