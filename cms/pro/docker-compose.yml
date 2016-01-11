@@ -1,0 +1,7 @@
+app:
+  image: subak/cms:pro
+  environment:
+    APP:
+    ID_RSA:
+    CONTENT_REPO:
+    ENGINE_REPO:
