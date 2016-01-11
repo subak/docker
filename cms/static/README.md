@@ -1,10 +1,10 @@
-# subak/cms:pro
+# subak/cms:static
 
 ```
 $ docker run -d --name ${NAME} \
-  -e APP="${APP}" \
   -e ID_RSA="$(cat ~/.ssh/id_rsa)" \
   -e CONTENT_REPO="${CONTENT_REPO}" \
-  -e ENGINE_REPO="${ENGINE_REPO}" \
-  subak/cms:pro
+  -e APP_REPO="${APP_REPO}" \
+  -e HTML_REPO="${HTML_REPO}" \
+  subak/cms:static
 ```
