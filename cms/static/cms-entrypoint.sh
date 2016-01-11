@@ -2,6 +2,8 @@
 
 set -ue
 
+ID_RSA=${ID_RSA:-''}
+
 CONTENT_REPO=${CONTENT_REPO:-''}
 APP_REPO=${APP_REPO:-''}
 HTML_REPO=${HTML_REPO:-''}
@@ -10,7 +12,7 @@ CONTENT_REPO_BRANCH=${CONTENT_REPO_BRANCH:-'master'}
 APP_REPO_BRANCH=${APP_REPO_BRANCH:-'master'}
 HTML_REPO_BRANCH=${HTML_REPO_BRANCH:-'master'}
 
-if [ ! -e .ssh/id_rsa ]; then
+if [ -n "${ID_RSA}" ] && [ ! -e .ssh/id_rsa ]; then
   echo "${ID_RSA}" > .ssh/id_rsa
   chmod 600 .ssh/id_rsa
 fi
@@ -46,7 +48,6 @@ if [ -n "${HTML_REPO}" ]; then
 fi
 
 . app/bin/env.sh
-export APP=app
 
 mkdir -pv public
 find public/* -maxdepth 0 -print0 | xargs -0 rm -rfv
