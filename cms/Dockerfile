@@ -68,8 +68,8 @@ RUN npm install -g yaml2json
 # asciidoctor
 RUN apt-get update && apt-get install -y default-jre graphviz fonts-vlgothic
 RUN gem install asciidoctor \
- && gem install asciidoctor-diagram --pre
-RUN gem install pygments.rb
+ && gem install asciidoctor-diagram --pre \
+ && gem install pygments.rb
 
 # h2o
 ENV H2O_VER 1.6.1
@@ -100,7 +100,14 @@ RUN cmake -DWITH_BUNDLED_SSL=on . \
  && make install
 
 WORKDIR /root
-RUN rm -rf ${H2O_DIR}
+
+# sassc
+WORKDIR /usr/src
+ENV SASS_LIBSASS_PATH /usr/src/libsass
+RUN git clone https://github.com/sass/libsass.git --depth 1 \
+ && git clone https://github.com/sass/sassc.git --depth 1 \
+ && cd sassc && make install
+WORKDIR /root
 
 EXPOSE 80
 
