@@ -1,4 +1,4 @@
-FROM docker:1.7.1
+FROM docker:latest
 
 RUN apk --update add bash tzdata apk-cron && \
     cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime && \
