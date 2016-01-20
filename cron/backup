@@ -14,11 +14,13 @@ function abort
 
 REGI=${REGI:-docker.io}
 TAG_SUFFIX=${TAG_SUFFIX:-''}
-NAME=$(mkpasswd -m md5 '' | base64 | sed 's/[=+\/]//g')
 
-docker run --name $NAME --volumes-from $HOSTNAME subak/storage backup $@
-docker commit $NAME $REGI/$REPO:$TAG$TAG_SUFFIX
+name=$(mkpasswd -m md5 '' | base64 | sed 's/[=+\/]//g')
+image="${REGI}/${REPO}:${TAG}${TAG_SUFFIX}"
+
+docker run --name ${name} --volumes-from ${HOSTNAME} subak/storage backup $@
+iid=$(docker commit ${name} ${image})
 # TODO: handle unauthorized error
-docker push $REGI/$REPO:$TAG$TAG_SUFFIX
-docker rm $NAME
-docker rmi $REGI/$REPO:$TAG$TAG_SUFFIX
+docker push ${image}
+docker rm ${name}
+docker rmi ${iid}
