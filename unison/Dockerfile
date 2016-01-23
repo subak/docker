@@ -1,20 +1,30 @@
-FROM ubuntu:wily
+FROM alpine
+MAINTAINER Subak Systems <info@subak.jp>
 
-ENV VERSION 2.48.3
-ENV SOURCE_URL http://www.seas.upenn.edu/~bcpierce/unison//download/releases/stable/unison-${VERSION}.tar.gz
+ENV OCAML_MAJOR_VERSION 4.02
+ENV OCAML_VERSION ${OCAML_MAJOR_VERSION}.3
+ENV UNISON_VERSION 2.48.3
 
-RUN apt-get update
-RUN apt-get install -y \
-    ocaml \
-    build-essential \
-    exuberant-ctags \
-    curl
+RUN apk add --update build-base curl
 
-RUN cd /usr/src \
- && curl -L ${SOURCE_URL} | tar zxv \
- && cd /usr/src/unison-${VERSION} \
+# ocaml
+RUN curl http://caml.inria.fr/pub/distrib/ocaml-${OCAML_MAJOR_VERSION}/ocaml-${OCAML_VERSION}.tar.gz \
+  | tar zxv -C /tmp \
+ && cd /tmp/ocaml-${OCAML_VERSION} \
+ && ./configure -with-debug-runtime -no-graph \
+ && make world.opt \
+ && make install
+
+# unison
+RUN curl https://www.seas.upenn.edu/~bcpierce/unison//download/releases/stable/unison-${UNISON_VERSION}.tar.gz \
+  | tar zxv -C /tmp \
+ && cd /tmp/unison-${UNISON_VERSION} \
+ && sed -i -e 's/GLIBC_SUPPORT_INOTIFY 0/GLIBC_SUPPORT_INOTIFY 1/' fsmonitor/linux/inotify_stubs.c \
  && make UISTYLE=text \
  && cp unison unison-fsmonitor /usr/local/bin
+
+RUN apk del build-base curl \
+ && rm -rfv /tmp/ocaml-${OCAML_VERSION} /tmp/unison-${UNISON_VERSION}
 
 ENV TZ Asia/Tokyo
 ENV LANG C.UTF-8
