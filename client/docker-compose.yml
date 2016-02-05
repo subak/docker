@@ -1,0 +1,19 @@
+docker17:
+  image: docker:1.7
+  environment:
+    DOCKER_HOST:
+
+docker18:
+  image: docker:1.8
+  environment:
+    DOCKER_HOST:
+
+docker19:
+  image: docker:1.9
+  environment:
+    DOCKER_HOST:
+
+docker110:
+  image: docker:1.10
+  environment:
+    DOCKER_HOST:
