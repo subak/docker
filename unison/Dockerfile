@@ -1,14 +1,13 @@
 FROM alpine
 MAINTAINER Subak Systems <info@subak.jp>
 
-ENV OCAML_MAJOR_VERSION 4.02
-ENV OCAML_VERSION ${OCAML_MAJOR_VERSION}.3
-ENV UNISON_VERSION 2.48.3
+ARG OCAML_VERSION=4.02.3
+ARG UNISON_VERSION=2.48.3
 
 RUN apk add --update build-base curl
 
 # ocaml
-RUN curl http://caml.inria.fr/pub/distrib/ocaml-${OCAML_MAJOR_VERSION}/ocaml-${OCAML_VERSION}.tar.gz \
+RUN curl http://caml.inria.fr/pub/distrib/ocaml-$(echo ${OCAML_VERSION} | sed 's/\.[0-9]*$//')/ocaml-${OCAML_VERSION}.tar.gz \
   | tar zxv -C /tmp \
  && cd /tmp/ocaml-${OCAML_VERSION} \
  && ./configure -with-debug-runtime -no-graph \
