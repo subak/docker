@@ -45,9 +45,9 @@ RUN echo '. ${HOME}/.bashrc' > .bash_profile \
 EXPOSE 60000-61000/udp
 EXPOSE 22
 
-COPY client-entrypoint.sh /usr/local/bin
-COPY docker-compose.yml /root
-COPY functions.sh /root
+COPY client-entrypoint.sh /usr/local/bin/
+COPY docker-compose.yml /root/
+COPY functions.sh /root/
 
 ENTRYPOINT []
 CMD ["client-entrypoint.sh","-D"]
