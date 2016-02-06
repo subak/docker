@@ -24,7 +24,17 @@ RUN apk add --update \
     util-linux \
     screen \
     nano \
-    mosh
+    mosh \
+    less
+
+# stone
+ADD http://www.gcd.org/sengoku/stone/stone-2.3e.tar.gz /tmp/stone.tar.gz
+RUN apk add gcc make libc-dev openssl-dev \
+ && cd /tmp \
+ && tar zxf stone.tar.gz \
+ && cd /tmp/stone-*/ \
+ && FLAGS=-D_GNU_SOURCE make linux-ssl \
+ && cp -a stone /usr/local/bin
 
 RUN sed -i 's/\/bin\/ash/\/bin\/bash/' /etc/passwd
 
