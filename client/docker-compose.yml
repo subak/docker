@@ -2,18 +2,26 @@ docker17:
   image: docker:1.7
   environment:
     DOCKER_HOST:
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
 
 docker18:
   image: docker:1.8
   environment:
     DOCKER_HOST:
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
 
 docker19:
   image: docker:1.9
   environment:
     DOCKER_HOST:
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
 
 docker110:
   image: docker:1.10
   environment:
     DOCKER_HOST:
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock

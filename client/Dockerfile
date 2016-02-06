@@ -50,6 +50,7 @@ RUN echo '. ${HOME}/.bashrc' > .bash_profile \
  && echo 'export TERM=xterm-256color' >> .bashrc \
  && echo "export PS1='"'\h:\W\$ '"'" >> .bashrc \
  && echo '. ${HOME}/functions.sh' >> .bashrc \
+ && echo 'alias docker=docker${COMPOSE_API_VERSION}' >> .bashrc \
  && echo '. ${HOME}/.profile' >> .bashrc
 
 EXPOSE 60000-61000/udp
