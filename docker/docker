@@ -4,14 +4,14 @@ set -eu
 
 : ${COMPOSE_API_VERSION:=1.22}
 
-[ "${COMPOSE_API_VERSION}" = '1.22' ] && file=v2.yml || file=v1.yml
+[ "${COMPOSE_API_VERSION}" '>' '1.21' ] && file=v2.yml || file=v1.yml
 
 cd
 
 if [ -p /dev/stdin ] ; then
-  docker-compose -f ${file} run --rm "${COMPOSE_API_VERSION:-1.22}" docker "${@}" < /dev/stdin
+  docker-compose -f ${file} run --rm ${COMPOSE_API_VERSION} docker "${@}" < /dev/stdin
 else
-  docker-compose -f ${file} run --rm "${COMPOSE_API_VERSION:-1.22}" docker "${@}"
+  docker-compose -f ${file} run --rm ${COMPOSE_API_VERSION} docker "${@}"
 fi
 
 cd ${OLDPWD}
