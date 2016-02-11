@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -eu
+
+: ${COMPOSE_API_VERSION:=1.22}
+
+[ "${COMPOSE_API_VERSION}" = '1.22' ] && file=v2.yml || file=v1.yml
+
+cd
+
+if [ -p /dev/stdin ] ; then
+  docker-compose -f ${file} run --rm "${COMPOSE_API_VERSION:-1.22}" docker "${@}" < /dev/stdin
+else
+  docker-compose -f ${file} run --rm "${COMPOSE_API_VERSION:-1.22}" docker "${@}"
+fi
+
+cd ${OLDPWD}

@@ -1,0 +1,30 @@
+version: '2'
+
+services:
+  '1.19':
+    image: docker:1.7
+    environment:
+      DOCKER_HOST:
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  '1.20':
+    image: docker:1.8
+    environment:
+      DOCKER_HOST:
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  '1.21':
+    image: docker:1.9
+    environment:
+      DOCKER_HOST:
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  '1.22':
+    image: docker:1.10
+    environment:
+      DOCKER_HOST:
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
