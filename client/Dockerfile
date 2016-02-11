@@ -1,10 +1,10 @@
-FROM docker/compose:1.6.0
+FROM subak/docker
 MAINTAINER Subak Systems <info@subak.jp>
 
 RUN apk update
 
 # ssh
-RUN apk add --update openssh && \
+RUN apk add openssh && \
     ssh-keygen -A
 
 WORKDIR /root
@@ -14,13 +14,12 @@ RUN mkdir .ssh \
 
 # git
 WORKDIR /root
-RUN apk add --update git \
+RUN apk add git \
  && git config --global color.ui auto \
  && echo "Host github.com\n\tStrictHostKeyChecking no\n" >> .ssh/config \
  && echo "Host bitbucket.org\n\tStrictHostKeyChecking no\n" >> .ssh/config
 
-RUN apk add --update \
-    bash \
+RUN apk add \
     util-linux \
     screen \
     nano \
@@ -49,16 +48,13 @@ RUN echo '. ${HOME}/.bashrc' > .bash_profile \
  && echo 'export TZ=Asia/Tokyo' >> .bashrc \
  && echo 'export TERM=xterm-256color' >> .bashrc \
  && echo "export PS1='"'\h:\W\$ '"'" >> .bashrc \
- && echo '. ${HOME}/functions.sh' >> .bashrc \
- && echo 'alias docker=docker${COMPOSE_API_VERSION}' >> .bashrc \
- && echo '. ${HOME}/.profile' >> .bashrc
+ && echo '. ${HOME}/.profile' >> .bashrc \
+ && touch .profile
 
 EXPOSE 60000-61000/udp
 EXPOSE 22
 
 COPY client-entrypoint.sh /usr/local/bin/
-COPY docker-compose.yml /root/
-COPY functions.sh /root/
 
 ENTRYPOINT []
 CMD ["client-entrypoint.sh","-D"]
