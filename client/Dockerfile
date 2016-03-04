@@ -14,7 +14,7 @@ RUN mkdir .ssh \
 
 # git
 WORKDIR /root
-RUN apk add git \
+RUN apk add git-subtree \
  && git config --global color.ui auto \
  && echo "Host github.com\n\tStrictHostKeyChecking no\n" >> .ssh/config \
  && echo "Host bitbucket.org\n\tStrictHostKeyChecking no\n" >> .ssh/config
