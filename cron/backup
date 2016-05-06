@@ -22,5 +22,5 @@ docker run --name ${name} --volumes-from ${HOSTNAME} subak/storage backup $@
 iid=$(docker commit ${name} ${image})
 # TODO: handle unauthorized error
 docker push ${image}
-docker rm ${name}
+docker rm -v ${name}
 docker rmi ${iid}
