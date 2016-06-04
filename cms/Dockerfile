@@ -1,113 +1,388 @@
-FROM ubuntu:wily
+FROM alpine
 MAINTAINER Subak Systems <info@subak.jp>
 
-ENV DEBIAN_FRONTEND noninteractive
-ENV LANG C.UTF-8
-ENV TERM xterm-256color
-WORKDIR /root
 
-RUN apt-get update \
- && apt-get install -y software-properties-common
+# <<<<<<< Ruby
+# https://raw.githubusercontent.com/docker-library/ruby/0b94677b368947b64dcdcb312cd81ba946df3676/2.3/alpine/Dockerfile
 
-# pandoc
-RUN apt-get install -y pandoc
+# skip installing gem documentation
+RUN mkdir -p /usr/local/etc \
+	&& { \
+		echo 'install: --no-document'; \
+		echo 'update: --no-document'; \
+	} >> /usr/local/etc/gemrc
 
-# node
-RUN apt-get install -y npm \
- && update-alternatives --install /usr/bin/node node /usr/bin/nodejs 10
+ENV RUBY_MAJOR 2.3
+ENV RUBY_VERSION 2.3.1
+ENV RUBY_DOWNLOAD_SHA256 b87c738cb2032bf4920fef8e3864dc5cf8eae9d89d8d523ce0236945c5797dcd
+ENV RUBYGEMS_VERSION 2.6.4
 
-# go
-ENV GOPATH /root/.go
-ENV PATH /root/.go/bin:$PATH
-RUN apt-get install -y golang
+# some of ruby's build scripts are written in ruby
+# we purge this later to make sure our final image uses what we just built
+RUN set -ex \
+	&& apk add --no-cache --virtual .ruby-builddeps \
+		autoconf \
+		bison \
+		bzip2 \
+		bzip2-dev \
+		ca-certificates \
+		coreutils \
+		curl \
+		gcc \
+		gdbm-dev \
+		glib-dev \
+		libc-dev \
+		libffi-dev \
+		libxml2-dev \
+		libxslt-dev \
+		linux-headers \
+		make \
+		ncurses-dev \
+		openssl-dev \
+		procps \
+# https://bugs.ruby-lang.org/issues/11869 and https://github.com/docker-library/ruby/issues/75
+		readline-dev \
+		ruby \
+		yaml-dev \
+		zlib-dev \
+	&& curl -fSL -o ruby.tar.gz "http://cache.ruby-lang.org/pub/ruby/$RUBY_MAJOR/ruby-$RUBY_VERSION.tar.gz" \
+	&& echo "$RUBY_DOWNLOAD_SHA256 *ruby.tar.gz" | sha256sum -c - \
+	&& mkdir -p /usr/src \
+	&& tar -xzf ruby.tar.gz -C /usr/src \
+	&& mv "/usr/src/ruby-$RUBY_VERSION" /usr/src/ruby \
+	&& rm ruby.tar.gz \
+	&& cd /usr/src/ruby \
+	&& { echo '#define ENABLE_PATH_CHECK 0'; echo; cat file.c; } > file.c.new && mv file.c.new file.c \
+	&& autoconf \
+	# the configure script does not detect isnan/isinf as macros
+	&& ac_cv_func_isnan=yes ac_cv_func_isinf=yes \
+		./configure --disable-install-doc \
+	&& make -j"$(getconf _NPROCESSORS_ONLN)" \
+	&& make install \
+	&& runDeps="$( \
+		scanelf --needed --nobanner --recursive /usr/local \
+			| awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
+			| sort -u \
+			| xargs -r apk info --installed \
+			| sort -u \
+	)" \
+	&& apk add --virtual .ruby-rundeps $runDeps \
+		bzip2 \
+		ca-certificates \
+		curl \
+		libffi-dev \
+		openssl-dev \
+		yaml-dev \
+		procps \
+		zlib-dev \
+	&& apk del .ruby-builddeps \
+	&& gem update --system $RUBYGEMS_VERSION \
+	&& rm -r /usr/src/ruby
 
-# ruby
-RUN apt-get install -y pry
+ENV BUNDLER_VERSION 1.12.4
 
-# git
-RUN apt-get install -y git
+RUN gem install bundler --version "$BUNDLER_VERSION"
 
-# php
-RUN add-apt-repository -y ppa:ondrej/php-7.0 \
- && apt-get update && apt-get install -y php7.0-dev \
- && echo 'short_open_tag = On' > /etc/php/7.0/cli/conf.d/my-php.ini
+# install things globally, for great justice
+# and don't create ".bundle" in all our apps
+ENV GEM_HOME /usr/local/bundle
+ENV BUNDLE_PATH="$GEM_HOME" \
+	BUNDLE_BIN="$GEM_HOME/bin" \
+	BUNDLE_SILENCE_ROOT_WARNING=1 \
+	BUNDLE_APP_CONFIG="$GEM_HOME"
+ENV PATH $BUNDLE_BIN:$PATH
+RUN mkdir -p "$GEM_HOME" "$BUNDLE_BIN" \
+	&& chmod 777 "$GEM_HOME" "$BUNDLE_BIN"
 
-# composer
-ENV PATH /root/.composer/vendor/bin:$PATH
-RUN curl -S https://getcomposer.org/installer | php \
- && mv composer.phar /usr/local/bin/composer
+# >>>>>>> Ruby
 
-# ruby-jq
-RUN cd /usr/src \
- && git clone https://github.com/stedolan/jq.git \
- && cd jq \
- && autoreconf -i \
- && ./configure --enable-shared \
- && make \
- && make install \
- && ldconfig \
- && gem install ruby-jq
 
-# php-yaml
-RUN apt-get install -y libyaml-dev \
- && echo '' | pecl install yaml-beta \
- && echo 'extension=yaml.so' > /etc/php/7.0/cli/conf.d/ext-yaml.ini
+# <<<<<<< H2O
+# 参考: https://hub.docker.com/r/vimagick/h2o/~/dockerfile/
+# 参考: https://hub.docker.com/r/lkwg82/h2o-http2-server/~/dockerfile/
 
-# psysh
-RUN composer g require psy/psysh:@stable
-
-# pup
-RUN go get github.com/ericchiang/pup
-
-# jq
-RUN apt-get install -y jq
-
-# yaml2json
-RUN npm install -g yaml2json
-
-# asciidoctor
-RUN apt-get update && apt-get install -y default-jre graphviz fonts-vlgothic
-RUN gem install asciidoctor \
- && gem install asciidoctor-diagram --pre \
- && gem install pygments.rb
-
-# h2o
-ENV H2O_VER 1.6.1
+ENV H2O_VER 2.0.0
 ENV H2O_URL https://github.com/h2o/h2o/archive/v${H2O_VER}.tar.gz
 ENV H2O_DIR h2o-${H2O_VER}
 
-RUN apt-get install -y \
-    cmake \
-    curl \
-    libscope-guard-perl \
-    libssl-dev \
-    libtest-tcp-perl \
-    libyaml-dev \
-    liburi-perl \
-    libio-socket-ssl-perl \
-    ruby \
-    bison
-
-RUN curl -SL ${H2O_URL} | tar xzv
-WORKDIR ${H2O_DIR}
-
-RUN mkdir deps/mruby-uri \
- && curl -L https://github.com/zzak/mruby-uri/archive/master.tar.gz \
-  | tar zxv --strip-components 1 -C deps/mruby-uri
-
-RUN cmake -DWITH_BUNDLED_SSL=on . \
+RUN set -xe \
+ && apk add --no-cache --virtual .deps \
+      git \
+      curl \
+      bison \
+      linux-headers \
+      zlib-dev \
+      build-base \
+      cmake \
+ && mkdir -p /usr/src \
+ && cd /usr/src \
+ && curl -sSL ${H2O_URL} | tar xz \
+ && cd ${H2O_DIR} \
+ && git clone https://github.com/zzak/mruby-uri.git deps/mruby-uri \
+ && git clone https://github.com/iij/mruby-mtest.git deps/mruby-mtest \
+ && cmake -DWITH_BUNDLED_SSL=on . \
  && cmake -DWITH_MRUBY=ON . \
- && make install
+ && make install \
+ && apk del .deps
 
-WORKDIR /root
+# >>>>>>> H2O
 
-# sassc
-WORKDIR /usr/src
-ENV SASS_LIBSASS_PATH /usr/src/libsass
-RUN git clone https://github.com/sass/libsass.git --depth 1 \
+
+# <<<<<<< PHP
+# https://raw.githubusercontent.com/docker-library/php/81ceba13187f9488f1ab25683575ac1b62fea772/7.0/alpine/Dockerfile
+
+# persistent / runtime deps
+ENV PHPIZE_DEPS \
+		autoconf \
+		file \
+		g++ \
+		gcc \
+		libc-dev \
+		make \
+		pkgconf \
+		re2c
+RUN apk add --no-cache --virtual .persistent-deps \
+		ca-certificates \
+		curl
+
+# ensure www-data user exists
+RUN set -x \
+	&& addgroup -g 82 -S www-data \
+	&& adduser -u 82 -D -S -G www-data www-data
+# 82 is the standard uid/gid for "www-data" in Alpine
+# http://git.alpinelinux.org/cgit/aports/tree/main/apache2/apache2.pre-install?h=v3.3.2
+# http://git.alpinelinux.org/cgit/aports/tree/main/lighttpd/lighttpd.pre-install?h=v3.3.2
+# http://git.alpinelinux.org/cgit/aports/tree/main/nginx-initscripts/nginx-initscripts.pre-install?h=v3.3.2
+
+ENV PHP_INI_DIR /usr/local/etc/php
+RUN mkdir -p $PHP_INI_DIR/conf.d
+
+##<autogenerated>##
+##</autogenerated>##
+
+ENV GPG_KEYS 1A4E8B7277C42E53DBA9C7B9BCAA30EA9C0D5763
+
+ENV PHP_VERSION 7.0.7
+ENV PHP_FILENAME php-7.0.7.tar.xz
+ENV PHP_SHA256 9cc64a7459242c79c10e79d74feaf5bae3541f604966ceb600c3d2e8f5fe4794
+
+RUN set -xe \
+	&& apk add --no-cache --virtual .build-deps \
+		$PHPIZE_DEPS \
+		curl-dev \
+		gnupg \
+		libedit-dev \
+		libxml2-dev \
+		openssl-dev \
+		sqlite-dev \
+	&& curl -fSL "http://php.net/get/$PHP_FILENAME/from/this/mirror" -o "$PHP_FILENAME" \
+	&& echo "$PHP_SHA256 *$PHP_FILENAME" | sha256sum -c - \
+	&& curl -fSL "http://php.net/get/$PHP_FILENAME.asc/from/this/mirror" -o "$PHP_FILENAME.asc" \
+	&& export GNUPGHOME="$(mktemp -d)" \
+	&& for key in $GPG_KEYS; do \
+		gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$key"; \
+	done \
+	&& gpg --batch --verify "$PHP_FILENAME.asc" "$PHP_FILENAME" \
+	&& rm -r "$GNUPGHOME" "$PHP_FILENAME.asc" \
+	&& mkdir -p /usr/src \
+	&& tar -Jxf "$PHP_FILENAME" -C /usr/src \
+	&& mv "/usr/src/php-$PHP_VERSION" /usr/src/php \
+	&& rm "$PHP_FILENAME" \
+	&& cd /usr/src/php \
+	&& ./configure \
+		--with-config-file-path="$PHP_INI_DIR" \
+		--with-config-file-scan-dir="$PHP_INI_DIR/conf.d" \
+		$PHP_EXTRA_CONFIGURE_ARGS \
+		--disable-cgi \
+# --enable-mysqlnd is included here because it's harder to compile after the fact than extensions are (since it's a plugin for several extensions, not an extension in itself)
+		--enable-mysqlnd \
+# --enable-mbstring is included here because otherwise there's no way to get pecl to use it properly (see https://github.com/docker-library/php/issues/195)
+		--enable-mbstring \
+		--with-curl \
+		--with-libedit \
+		--with-openssl \
+		--with-zlib \
+	&& make -j"$(getconf _NPROCESSORS_ONLN)" \
+	&& make install \
+	&& { find /usr/local/bin /usr/local/sbin -type f -perm +0111 -exec strip --strip-all '{}' + || true; } \
+	&& make clean \
+	&& runDeps="$( \
+		scanelf --needed --nobanner --recursive /usr/local \
+			| awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
+			| sort -u \
+			| xargs -r apk info --installed \
+			| sort -u \
+	)" \
+	&& apk add --no-cache --virtual .php-rundeps $runDeps \
+	&& apk del .build-deps
+
+# >>>>>>> PHP
+
+
+# <<<<<<< Haskel
+# https://raw.githubusercontent.com/thriqon/pandoc-docker/master/Dockerfile
+
+COPY mitch.tishmack@gmail.com-55881c97.rsa.pub /etc/apk/keys/mitch.tishmack@gmail.com-55881c97.rsa.pub
+RUN mv /etc/apk/repositories /etc/apk/repositories.bak
+COPY repositories /etc/apk/repositories
+
+RUN set -xe \
+ && apk add --no-cache --virtual .haskel-run-deps \
+      ghc \
+      cabal-install \
+      stack \
+ && mv /etc/apk/repositories.bak /etc/apk/repositories
+
+# >>>>>>> Haskel
+
+
+# <<<<<<< Go
+
+RUN apk add --no-cache go
+
+# >>>>>>> Go
+
+
+# <<<<<<< Java
+
+RUN set -xe \
+# && echo -e '\nhttp://dl-4.alpinelinux.org/alpine/v3.3/community' >> /etc/apk/repositories \
+ && apk add --no-cache \
+      openjdk8-jre
+
+# >>>>>>> Java
+
+
+# <<<<<<< sassc
+
+RUN set -xe \
+ && apk add --no-cache --virtual .deps \
+      build-base \
+      git \
+ && mkdir -p /usr/src \
+ && cd /usr/src \
+ && git clone https://github.com/sass/libsass.git --depth 1 \
  && git clone https://github.com/sass/sassc.git --depth 1 \
- && cd sassc && make install
-WORKDIR /root
+ && cd sassc && make install SASS_LIBSASS_PATH=/usr/src/libsass \
+ && apk del .deps
 
-EXPOSE 80
+# >>>>>>> sassc
+
+
+# <<<<<<< Haskel
+# https://raw.githubusercontent.com/thriqon/pandoc-docker/master/Dockerfile
+#
+#COPY mitch.tishmack@gmail.com-55881c97.rsa.pub /etc/apk/keys/mitch.tishmack@gmail.com-55881c97.rsa.pub
+#RUN mv /etc/apk/repositories /etc/apk/repositories.bak
+#COPY repositories /etc/apk/repositories
+#
+#RUN apk add --no-cache texlive@testing
+#RUN apk add --no-cache --virtual .haskel-run-deps \
+#      ghc \
+#      cabal-install \
+#      stack
+
+# >>>>>>> Haskel
+
+
+# <<<<<<< Haskel Library
+
+ENV PATH /root/.cabal/bin:$PATH
+
+RUN mv /etc/apk/repositories /etc/apk/repositories.bak
+COPY repositories /etc/apk/repositories
+
+RUN set -xe \
+ && apk add --no-cache texlive@testing \
+ && apk add --no-cache --virtual .deps \
+      bash \
+      linux-headers \
+      musl-dev \
+      gmp-dev \
+      zlib-dev \
+      make \
+ && cabal update \
+ && cabal install pandoc pandoc-crossref pandoc-citeproc \
+ && apk del --no-cache .deps texlive \
+ && mv /etc/apk/repositories.bak /etc/apk/repositories
+
+# >>>>>>> Haskel Library
+
+
+# <<<<<<< Go Library
+
+ENV GOPATH /root/.go
+ENV PATH /root/.go/bin:$PATH
+
+# pup
+RUN set -xe \
+ && apk add --no-cache --virtual .deps \
+      git \
+ && go get github.com/ericchiang/pup \
+ && apk del .deps
+
+# >>>>>>> Go Library
+
+
+# <<<<<<< Ruby Library
+
+RUN set -xe \
+ && apk add --no-cache --virtual .deps \
+      build-base \
+      jq-dev \
+ # pry
+ && gem install pry \
+ # ruby-jq
+ && gem install ruby-jq \
+ # asciidoctor
+ && gem install asciidoctor \
+ && gem install asciidoctor-diagram --pre \
+ && gem install pygments.rb \
+
+ && apk del .deps
+
+# >>>>>>> Ruby Library
+
+
+# <<<<<<< PHP Library
+
+ENV PATH /root/.composer/vendor/bin:$PATH
+RUN set -xe \
+ && apk add --no-cache --virtual .deps \
+      curl \
+      yaml-dev \
+      autoconf \
+      build-base \
+ && cd /tmp \
+ # composer
+ && curl -S https://getcomposer.org/installer | php \
+ && mv composer.phar /usr/local/bin/composer \
+ # psysh
+ && composer g require psy/psysh:@stable \
+ # php-yaml
+ && echo '' | pecl install yaml-beta \
+ && echo 'extension=yaml.so' > /usr/local/etc/php/conf.d/ext-yaml.ini \
+ # php.ini
+ && echo 'short_open_tag = On' > /usr/local/etc/php/conf.d/my-php.ini \
+
+ && apk del .deps
+
+# >>>>>>> PHP Library
+
+
+RUN apk add --no-cache \
+      bash \
+      findutils \
+      git-subtree \
+      jq \
+      graphviz
+
+WORKDIR /var/www
+
+ENV LANG C.UTF-8
+ENV TZ Asia/Tokyo
+ENV TERM xterm-256color
+ENV PS1 '\h:\W\$ '
+
+CMD ["bash","-i"]
 
