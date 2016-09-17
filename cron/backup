@@ -23,4 +23,4 @@ iid=$(docker commit ${name} ${image})
 # TODO: handle unauthorized error
 docker push ${image}
 docker rm -v ${name}
-docker rmi ${iid}
+docker rmi -f ${iid}
