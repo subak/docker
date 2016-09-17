@@ -1,13 +1,18 @@
-FROM subak/docker
+FROM docker:1.12.1
 MAINTAINER Subak Systems <info@subak.jp>
 
 WORKDIR /root
 
+# docker-compose
+RUN apk add --update py-pip \
+ && pip install docker-compose
+
 # git
-RUN apk add git-subtree \
+RUN apk add --update git-subtree \
  && git config --global color.ui auto
 
 RUN apk add --update \
+    bash \
     util-linux \
     screen \
     nano \
@@ -32,7 +37,7 @@ RUN curl http://caml.inria.fr/pub/distrib/ocaml-$(echo ${OCAML_VERSION} | sed 's
  && make install
 
 # unison
-RUN curl https://www.seas.upenn.edu/~bcpierce/unison//download/releases/stable/unison-${UNISON_VERSION}.tar.gz \
+RUN curl https://www.seas.upenn.edu/~bcpierce/unison/download/releases/unison-${UNISON_VERSION}/unison-${UNISON_VERSION}.tar.gz \
   | tar zxv -C /tmp \
  && cd /tmp/unison-${UNISON_VERSION} \
  && sed -i -e 's/GLIBC_SUPPORT_INOTIFY 0/GLIBC_SUPPORT_INOTIFY 1/' fsmonitor/linux/inotify_stubs.c \
@@ -71,6 +76,7 @@ RUN echo '. ${HOME}/.bashrc' > .bash_profile \
  && echo "export PS1='"'\h:\W\$ '"'" >> .bashrc \
  && echo '. ${HOME}/.profile' >> .bashrc \
  && touch .profile
+
 
 EXPOSE 60000-60010/udp
 EXPOSE 22
