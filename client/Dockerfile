@@ -21,6 +21,16 @@ RUN apk add --update \
     curl \
     openssh
 
+# docker-machine
+RUN curl -L https://github.com/docker/machine/releases/download/v0.8.0/docker-machine-`uname -s`-`uname -m` > /usr/local/bin/docker-machine \
+ && chmod +x /usr/local/bin/docker-machine
+
+
+# sakuracloud
+RUN curl -L https://github.com/yamamoto-febc/docker-machine-sakuracloud/releases/download/v0.0.13/docker-machine-driver-sakuracloud-`uname -s`-`uname -m` >/usr/local/bin/docker-machine-driver-sakuracloud \
+ && chmod +x /usr/local/bin/docker-machine-driver-sakuracloud
+
+
 # begin build
 RUN apk add --update build-base
 
