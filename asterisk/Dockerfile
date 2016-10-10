@@ -20,7 +20,8 @@ RUN apt-get update \
  libpopt-dev \
  libspandsp-dev \
  libvorbis-dev \
- curl
+ curl \
+ openssl
 
 ARG ASTERISK_VERSION=13.11.2
 ENV PKG_NAME asterisk-${ASTERISK_VERSION}
@@ -33,8 +34,7 @@ RUN cd asterisk-*/pbx/.. \
  && ./configure \
  && make bininstall
 
-RUN apt-get clean \
- && rm -rf /usr/src/*
+RUN apt-get clean
 
 WORKDIR /etc/asterisk
 CMD ["asterisk","-f"]
