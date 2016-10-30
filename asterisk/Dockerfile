@@ -23,7 +23,7 @@ RUN apt-get update \
  curl \
  openssl
 
-ARG ASTERISK_VERSION=13.11.2
+ARG ASTERISK_VERSION=13.12.1
 ENV PKG_NAME asterisk-${ASTERISK_VERSION}
 
 WORKDIR /usr/src
