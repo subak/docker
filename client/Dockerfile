@@ -88,6 +88,13 @@ RUN echo '. ${HOME}/.bashrc' > .bash_profile \
  && touch .profile
 
 
+# sshd
+RUN ssh-keygen -A \
+ && echo 'PermitUserEnvironment yes' >> /etc/ssh/sshd_config \
+ && mkdir -p /root/.ssh \
+ && chmod 700 /root/.ssh
+
+
 EXPOSE 60000-60010/udp
 EXPOSE 22
 
