@@ -21,13 +21,14 @@ RUN apt-get update \
  libspandsp-dev \
  libvorbis-dev \
  curl \
+ ca-certificates \
  openssl
 
 ARG ASTERISK_VERSION=13.12.1
-ENV PKG_NAME asterisk-${ASTERISK_VERSION}
+ENV PKG_NAME ${ASTERISK_VERSION}
 
 WORKDIR /usr/src
-RUN curl -o /usr/src/${PKG_NAME}.tar.gz http://downloads.asterisk.org/pub/telephony/asterisk/${PKG_NAME}.tar.gz \
+RUN curl -L -o /usr/src/${PKG_NAME}.tar.gz https://github.com/asterisk/asterisk/archive/${ASTERISK_VERSION}.tar.gz \
  && tar zxfv ${PKG_NAME}.tar.gz
 
 RUN cd asterisk-*/pbx/.. \
