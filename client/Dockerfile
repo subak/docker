@@ -19,7 +19,8 @@ RUN apk add --update \
     mosh \
     less \
     curl \
-    openssh
+    openssh \
+    tzdata
 
 # docker-machine
 RUN curl -L https://github.com/docker/machine/releases/download/v0.8.0/docker-machine-`uname -s`-`uname -m` > /usr/local/bin/docker-machine \
