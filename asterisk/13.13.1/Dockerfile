@@ -25,7 +25,10 @@ RUN apt-get update \
  openssl \
  unixODBC \
  unixODBC-dev \
- libmyodbc
+ libmyodbc \
+ speex \
+ libspeex-dev \
+ libspeexdsp-dev
 
 ARG ASTERISK_VERSION=13.13.1
 ENV PKG_NAME ${ASTERISK_VERSION}
